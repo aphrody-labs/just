@@ -262,7 +262,7 @@ impl Compiler {
   }
 
   #[cfg(test)]
-  pub(crate) fn test_compile(src: &str) -> CompileResult<Justfile> {
+  pub(crate) fn test_compile(src: &str) -> CompileResult<'_, Justfile<'_>> {
     let tokens = Lexer::test_lex(src)?;
     let ast = Parser::parse_tokens(&mut Numerator::new(), &tokens)?;
     let root = Utf8PathBuf::from("justfile");

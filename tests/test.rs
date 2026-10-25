@@ -11,7 +11,7 @@ pub(crate) struct Test {
   pub(crate) expected_files: BTreeMap<PathBuf, Vec<u8>>,
   pub(crate) justfile: Option<String>,
   pub(crate) response: Option<Response>,
-  pub(crate) shell: bool,
+  pub(crate) shell: Option<bool>,
   pub(crate) stderr: String,
   pub(crate) stderr_regex: Option<Regex>,
   pub(crate) stdin: String,
@@ -34,7 +34,7 @@ impl Test {
       expected_files: BTreeMap::new(),
       justfile: None,
       response: None,
-      shell: true,
+      shell: None,
       stderr: String::new(),
       stderr_regex: None,
       stdin: String::new(),
@@ -114,7 +114,7 @@ impl Test {
   }
 
   pub(crate) fn shell(mut self, shell: bool) -> Self {
-    self.shell = shell;
+    self.shell = Some(shell);
     self
   }
 
@@ -232,9 +232,12 @@ impl Test {
 
     let stderr = unindent(&self.stderr);
 
-    let mut command = Command::new(JUST);
+    let mut command = just_command();
 
-    if self.shell {
+    if self.shell.unwrap_or_else(|| {
+      !(env::var_os("BUN_JUST_TEST_BINARY").is_some()
+        && env::var_os("BUN_JUST_TEST_SHELL").is_some_and(|shell| shell == "bun"))
+    }) {
       command.args(["--shell", "bash"]);
     }
 

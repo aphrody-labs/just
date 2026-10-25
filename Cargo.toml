@@ -1,28 +1,24 @@
 [package]
-name = "just"
+name = "bun_just"
 version = "1.58.0"
 authors = ["Casey Rodarmor <casey@rodarmor.com>"]
 autotests = false
 categories = ["command-line-utilities", "development-tools"]
 description = "🤖 Just a command runner"
 edition = "2024"
-exclude = ["/book", "/etc", "!/etc/completion-registration-script.bash", "/www"]
 homepage = "https://github.com/casey/just"
 keywords = ["command-line", "task", "runner", "development", "utility"]
 license = "CC0-1.0"
-readme = "etc/crates-io-readme.md"
-repository = "https://github.com/casey/just"
+repository = "https://github.com/aphrody-labs/just"
 rust-version = "1.89.0"
-
-[workspace]
-members = [".", "crates/*"]
+publish = false
 
 [dependencies]
-blake3 = { version = "1.5.0", features = ["mmap", "rayon", "serde"] }
-camino = { version = "1.0.4", features = ["serde1"] }
-chrono = "0.4.38"
-clap = { version = "4.0.0", features = ["derive", "env", "string", "wrap_help"] }
-clap_complete = { version = "=4.6.8", features = ["unstable-dynamic"] }
+blake3 = { "workspace" = true, "features" = ["mmap", "rayon", "serde"] }
+camino = { "version" = "1.0.4", "features" = ["serde1"] }
+chrono = { "workspace" = true }
+clap = { "workspace" = true, "features" = ["derive", "env", "string", "wrap_help"] }
+clap_complete = { "version" = "4.6.8", "features" = ["unstable-dynamic"] }
 clap_mangen = "0.3.0"
 digest-io = "0.1.0"
 dirs = "6.0.0"
@@ -30,79 +26,49 @@ dotenvy = "0.15.0"
 heck = "0.5.0"
 hex = "0.4.3"
 is_executable = "1.0.4"
-libc = "0.2.0"
+libc = { "workspace" = true }
 nu-ansi-term = "0.50.3"
 num_cpus = "1.15.0"
 percent-encoding = "2.3.1"
-pulldown-cmark = { version = "0.13.4", default-features = false }
+pulldown-cmark = { "version" = "0.13.4", "default-features" = false }
 rand = "0.10.0"
-regex = "1.10.4"
+regex = { "workspace" = true }
 semver = "1.0.20"
-serde = { version = "1.0.130", features = ["derive", "rc"] }
-serde_json = "1.0.68"
-sha2 = "0.11.0"
+serde = { "workspace" = true, "features" = ["derive", "rc"] }
+serde_json = { "workspace" = true }
+sha2 = { "workspace" = true }
 shellexpand = "3.1.0"
-similar = { version = "3.0.0", features = ["unicode"] }
+similar = { "workspace" = true, "features" = ["unicode"] }
 snafu = "0.9.0"
 strsim = "0.11.1"
-strum = { version = "0.28.0", features = ["derive"] }
-tempfile = "3.0.0"
+strum = { "version" = "0.28.0", "features" = ["derive"] }
+tempfile = { "workspace" = true }
 typed-arena = "2.0.1"
 unicode-width = "0.2.0"
-uuid = { version = "1.0.0", features = ["v4"] }
+uuid = { "workspace" = true, "features" = ["v4"] }
+bun_no_window = { "workspace" = true }
 
 [target.'cfg(unix)'.dependencies]
-nix = { version = "0.31.0", features = ["signal", "user", "fs"] }
+nix = { "version" = "0.31.0", "features" = ["signal", "user", "fs"] }
 
 [target.'cfg(windows)'.dependencies]
-ctrlc = { version = "3.1.1", features = ["termination"] }
+ctrlc = { "version" = "3.1.1", "features" = ["termination"] }
 
 [dev-dependencies]
 pretty_assertions = "1.0.0"
-which = "8.0.0"
+which = { "workspace" = true }
 
-[lints.rust]
-mismatched_lifetime_syntaxes = "allow"
-unexpected_cfgs = "deny"
-unreachable_pub = "deny"
-
-[lints.clippy]
-all = { level = "deny", priority = -1 }
-arbitrary_source_item_ordering = "deny"
-assert_is_empty = "allow"
-enum_glob_use = "allow"
-format_push_string = "allow"
-ignore_without_reason = "allow"
-needless_pass_by_value = "allow"
-pedantic = { level = "deny", priority = -1 }
-self_named_constructors = "allow"
-similar_names = "allow"
-struct_excessive_bools = "allow"
-struct_field_names = "allow"
-too_many_arguments = "allow"
-too_many_lines = "allow"
-type_complexity = "allow"
-undocumented_unsafe_blocks = "deny"
-unnecessary_wraps = "allow"
-wildcard_imports = "allow"
+[lints]
+workspace = true
 
 [lib]
+path = "src/lib.rs"
 doctest = false
 
 [[bin]]
-path = "src/main.rs"
 name = "just"
+path = "src/main.rs"
 test = false
-
-# The public documentation is minimal and doesn't change between
-# platforms, so we only build them for linux on docs.rs to save
-# their build machines some cycles.
-[package.metadata.docs.rs]
-targets = ["x86_64-unknown-linux-gnu"]
-
-[profile.release]
-lto = true
-codegen-units = 1
 
 [[test]]
 name = "integration"

@@ -397,7 +397,24 @@ fn test_just_executable_function() {
           @printf 'Executable path is: %s\\n' '{{ just_executable() }}'
       ",
     )
-    .stdout(format!("Executable path is: {JUST}\n"))
+    .stdout(format!("Executable path is: {}\n", just_binary().display()))
+    .success();
+}
+
+#[test]
+fn just_command_recurses_with_arguments() {
+  Test::new()
+    .arg("outer")
+    .justfile(
+      r#"
+        outer:
+          @{{just_command()}} inner 'nested argument'
+
+        inner value:
+          @printf '%s\n' '{{value}}'
+      "#,
+    )
+    .stdout("nested argument\n")
     .success();
 }
 

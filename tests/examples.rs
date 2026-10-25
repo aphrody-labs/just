@@ -8,7 +8,7 @@ fn examples() {
 
     println!("Parsing `{}`…", path.display());
 
-    let output = Command::new(JUST)
+    let output = just_command()
       .arg("--justfile")
       .arg(&path)
       .arg("--dump")

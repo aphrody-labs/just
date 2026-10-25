@@ -37,11 +37,11 @@ impl<'key, V: Keyed<'key>> Table<'key, V> {
     self.map.is_empty()
   }
 
-  pub(crate) fn values(&self) -> btree_map::Values<&'key str, V> {
+  pub(crate) fn values(&self) -> btree_map::Values<'_, &'key str, V> {
     self.map.values()
   }
 
-  pub(crate) fn values_mut(&mut self) -> btree_map::ValuesMut<&'key str, V> {
+  pub(crate) fn values_mut(&mut self) -> btree_map::ValuesMut<'_, &'key str, V> {
     self.map.values_mut()
   }
 
@@ -49,11 +49,11 @@ impl<'key, V: Keyed<'key>> Table<'key, V> {
     self.map.contains_key(key)
   }
 
-  pub(crate) fn keys(&self) -> btree_map::Keys<&'key str, V> {
+  pub(crate) fn keys(&self) -> btree_map::Keys<'_, &'key str, V> {
     self.map.keys()
   }
 
-  pub(crate) fn iter(&self) -> btree_map::Iter<&'key str, V> {
+  pub(crate) fn iter(&self) -> btree_map::Iter<'_, &'key str, V> {
     self.map.iter()
   }
 

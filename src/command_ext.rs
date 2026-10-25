@@ -1,5 +1,9 @@
 use super::*;
 
+pub(crate) fn shell_quote(value: &str) -> String {
+  format!("'{}'", value.replace('\'', "'\\''"))
+}
+
 pub(crate) trait CommandExt {
   fn output_guard(self) -> (io::Result<process::Output>, Option<Signal>);
 
@@ -43,7 +47,7 @@ impl CommandExt for Command {
     let program = Utf8Path::new(program.as_ref());
 
     if !cfg!(windows) {
-      return Self::new(program);
+      return bun_no_window::command(program);
     }
 
     let mut candidates = vec![program.into()];
@@ -79,15 +83,15 @@ impl CommandExt for Command {
         for extension in extensions {
           let path = candidate.with_extension(extension);
           if path.is_file() {
-            return Self::new(path);
+            return bun_no_window::command(path);
           }
         }
       } else if candidate.is_file() {
-        return Self::new(candidate);
+        return bun_no_window::command(candidate);
       }
     }
 
-    Self::new(program)
+    bun_no_window::command(program)
   }
 
   fn shell_arg(&mut self, arg: impl AsRef<str>) -> &mut Command {

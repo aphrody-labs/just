@@ -137,7 +137,7 @@ fn write_error() {
 
   let justfile_path = test.justfile_path();
 
-  let output = Command::new("chmod")
+  let output = bun_no_window::command("chmod")
     .arg("400")
     .arg(&justfile_path)
     .output()

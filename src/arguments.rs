@@ -13,8 +13,8 @@ use {
 #[command(
   about = concat!(env!("CARGO_PKG_DESCRIPTION"), " - ", env!("CARGO_PKG_HOMEPAGE")),
   author = env!("CARGO_PKG_AUTHORS"),
-  bin_name = env!("CARGO_PKG_NAME"),
-  name = env!("CARGO_PKG_NAME"),
+  bin_name = "just",
+  name = "just",
   styles = Styles::styled()
     .error(AnsiColor::Red.on_default() | Effects::BOLD)
     .header(AnsiColor::Yellow.on_default() | Effects::BOLD)
@@ -48,6 +48,11 @@ pub struct Arguments {
     num_args = 1..,
   )]
   pub(crate) arguments: Vec<String>,
+  #[arg(
+    help = "Use Bun Shell instead of the default shell (requires bun just)",
+    long
+  )]
+  pub(crate) bun_shell: bool,
   #[arg(
     add = ArgValueCompleter::new(PathCompleter::dir()),
     env = "JUST_CEILING",

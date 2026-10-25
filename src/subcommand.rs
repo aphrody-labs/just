@@ -278,7 +278,16 @@ impl Subcommand {
       chooser.as_str().into()
     } else {
       command.env("JUST_JUSTFILE", &search.justfile);
-      "fzf --multi --preview 'just --unstable --color always --show {}'".into()
+      let preview = format!(
+        "{} --unstable --color always --show {{}}",
+        config
+          .embedded_just_command()
+          .unwrap_or_else(|| "just".into())
+      );
+      format!(
+        "fzf --multi --preview {}",
+        command_ext::shell_quote(&preview)
+      )
     };
 
     let result = command

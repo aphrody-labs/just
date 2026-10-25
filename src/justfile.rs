@@ -302,6 +302,7 @@ impl<'src> Justfile<'src> {
         let environment = Environment::new(dotenv, &scope, &self.settings, &self.unexports);
 
         environment.export(&mut command);
+        config.configure_child(&mut command);
 
         let (result, caught) = command.status_guard();
 
@@ -679,7 +680,7 @@ impl<'src> Justfile<'src> {
     Ok(())
   }
 
-  pub(crate) fn public_modules(&self, config: &Config) -> Vec<&Justfile> {
+  pub(crate) fn public_modules(&self, config: &Config) -> Vec<&Justfile<'_>> {
     let mut modules = self
       .modules
       .values()
@@ -698,7 +699,7 @@ impl<'src> Justfile<'src> {
     modules
   }
 
-  pub(crate) fn public_recipes(&self, config: &Config) -> Vec<&Recipe> {
+  pub(crate) fn public_recipes(&self, config: &Config) -> Vec<&Recipe<'_>> {
     let mut recipes = self
       .recipes
       .values()
@@ -713,7 +714,7 @@ impl<'src> Justfile<'src> {
     recipes
   }
 
-  pub(crate) fn public_recipes_recursive(&self, config: &Config) -> Vec<&Recipe> {
+  pub(crate) fn public_recipes_recursive(&self, config: &Config) -> Vec<&Recipe<'_>> {
     let mut recipes = Vec::new();
 
     let mut stack = vec![self];
@@ -752,7 +753,7 @@ impl<'src> Justfile<'src> {
     aliases
   }
 
-  pub(crate) fn public_modules_recursive(&self, config: &Config) -> Vec<&Justfile> {
+  pub(crate) fn public_modules_recursive(&self, config: &Config) -> Vec<&Justfile<'_>> {
     let mut modules = Vec::new();
 
     let mut stack = self.public_modules(config);

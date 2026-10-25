@@ -12,7 +12,7 @@ fn convert_native_path(path: &Path) -> String {
 #[cfg(windows)]
 fn convert_native_path(path: &Path) -> String {
   // Translate path from windows style to unix style
-  let mut cygpath = Command::new(env::var_os("JUST_CYGPATH").unwrap_or("cygpath".into()));
+  let mut cygpath = bun_no_window::command(env::var_os("JUST_CYGPATH").unwrap_or("cygpath".into()));
   cygpath.arg("--unix");
   cygpath.arg(path);
 
@@ -48,7 +48,7 @@ fn test_invocation_directory() {
   subdir.push("subdir");
   fs::create_dir(&subdir).unwrap();
 
-  let output = Command::new(JUST)
+  let output = just_command()
     .current_dir(&subdir)
     .args(["--shell", "sh"])
     .output()

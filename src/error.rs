@@ -448,7 +448,7 @@ impl<'src> Error<'src> {
     }
   }
 
-  fn suggestion(&self) -> Option<&Suggestion> {
+  fn suggestion(&self) -> Option<&Suggestion<'_>> {
     match self {
       Self::EvalUnknownSubmodule { suggestion, .. }
       | Self::EvalUnknownSubmoduleOrVariable { suggestion, .. }

@@ -24,7 +24,7 @@ impl Semaphore {
     &self.1
   }
 
-  pub(crate) fn acquire(&self) -> Guard {
+  pub(crate) fn acquire(&self) -> Guard<'_> {
     let mut count = self
       .condvar()
       .wait_while(self.mutex().lock().unwrap(), |count| *count == 0)

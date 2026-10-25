@@ -73,7 +73,7 @@ impl Value {
     !self.elements.is_empty()
   }
 
-  pub(crate) fn iter(&self) -> slice::Iter<String> {
+  pub(crate) fn iter(&self) -> slice::Iter<'_, String> {
     self.elements.iter()
   }
 }

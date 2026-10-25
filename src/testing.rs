@@ -1,6 +1,6 @@
 use {super::*, pretty_assertions::assert_eq};
 
-pub(crate) fn compile(src: &str) -> Justfile {
+pub(crate) fn compile(src: &str) -> Justfile<'_> {
   Compiler::test_compile(src).expect("expected successful compilation")
 }
 

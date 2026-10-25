@@ -61,6 +61,8 @@ impl Settings {
       cmd.shell_arg(arg);
     }
 
+    config.configure_child(&mut cmd);
+
     cmd
   }
 
@@ -85,6 +87,10 @@ impl Settings {
             shell.command.as_ref(),
             shell.arguments.iter().map(AsRef::as_ref).collect(),
           )
+        } else if config.bun_shell
+          && let Some(bun) = &config.embedded_bun
+        {
+          (bun.as_str(), vec!["--no-env-file", "exec", "--nounset"])
         } else {
           (DEFAULT_SHELL, DEFAULT_SHELL_ARGS.to_vec())
         }
@@ -209,5 +215,85 @@ mod tests {
     };
 
     assert_eq!(settings.shell(&config), ("sh", vec!["-nice"]));
+  }
+
+  #[test]
+  fn embedded_bun_is_instance_local_and_does_not_load_dotenv_twice() {
+    let settings = Settings::default();
+    let standalone = testing::config(&[]);
+    let embedded = Config {
+      embedded_bun: Some("C:/Bun With Spaces/bun.exe".into()),
+      ..testing::config(&[])
+    };
+    assert_eq!(settings.shell(&embedded), ("sh", vec!["-cu"]));
+    assert_eq!(
+      embedded.embedded_just_command().unwrap(),
+      "'C:/Bun With Spaces/bun.exe' --no-env-file just"
+    );
+    let embedded = Config {
+      bun_shell: true,
+      ..embedded
+    };
+    let command = settings.shell_command(&embedded);
+    assert_eq!(
+      embedded.embedded_just_command().unwrap(),
+      "'C:/Bun With Spaces/bun.exe' --no-env-file just --bun-shell"
+    );
+    assert_eq!(command.get_program(), "C:/Bun With Spaces/bun.exe");
+    assert_eq!(
+      command.get_args().collect::<Vec<_>>(),
+      ["--no-env-file", "exec", "--nounset"]
+    );
+    assert_eq!(settings.shell(&standalone), ("sh", vec!["-cu"]));
+  }
+
+  #[test]
+  fn embedded_default_preserves_cli_and_justfile_shell_overrides() {
+    let embedded = || Config {
+      bun_shell: true,
+      embedded_bun: Some("bun.exe".into()),
+      ..testing::config(&[])
+    };
+    let settings = Settings {
+      shell: Some(Interpreter {
+        command: "custom-shell".into(),
+        arguments: vec!["-c".into()],
+      }),
+      ..Default::default()
+    };
+    let config = embedded();
+    assert_eq!(settings.shell(&config), ("custom-shell", vec!["-c"]));
+    let config = Config {
+      shell: Some("cli-shell".into()),
+      shell_args: Some(vec!["-command".into()]),
+      ..embedded()
+    };
+    assert_eq!(settings.shell(&config), ("cli-shell", vec!["-command"]));
+    let config = Config {
+      shell_args: Some(vec!["-command".into()]),
+      ..embedded()
+    };
+    assert_eq!(settings.shell(&config), ("sh", vec!["-command"]));
+  }
+
+  #[test]
+  #[cfg(windows)]
+  fn embedded_default_preserves_windows_shell() {
+    let config = Config {
+      bun_shell: true,
+      embedded_bun: Some("bun.exe".into()),
+      ..testing::config(&[])
+    };
+    let settings = Settings {
+      windows_shell: Some(Interpreter {
+        command: "pwsh.exe".into(),
+        arguments: vec!["-NoProfile".into(), "-Command".into()],
+      }),
+      ..Default::default()
+    };
+    assert_eq!(
+      settings.shell(&config),
+      ("pwsh.exe", vec!["-NoProfile", "-Command"])
+    );
   }
 }

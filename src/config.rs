@@ -4,6 +4,7 @@ use super::*;
 pub(crate) struct Config {
   pub(crate) alias_style: AliasStyle,
   pub(crate) allow_missing: bool,
+  pub(crate) bun_shell: bool,
   pub(crate) ceiling: Option<Utf8PathBuf>,
   pub(crate) check: bool,
   pub(crate) color: Color,
@@ -15,6 +16,7 @@ pub(crate) struct Config {
   pub(crate) dotenv_filename: Vec<String>,
   pub(crate) dotenv_path: Vec<String>,
   pub(crate) dry_run: bool,
+  pub(crate) embedded_bun: Option<Utf8PathBuf>,
   pub(crate) explain: bool,
   pub(crate) groups: Vec<String>,
   pub(crate) highlight: bool,
@@ -47,10 +49,28 @@ pub(crate) struct Config {
 }
 
 impl Config {
+  pub(crate) fn configure_child(&self, command: &mut Command) {
+    if self.embedded_bun.is_some() {
+      // Keep recursive `bun just` calls in the embedded runner across package boundaries.
+      command.env("npm_lifecycle_event", "just");
+    }
+  }
+
+  pub(crate) fn embedded_just_command(&self) -> Option<String> {
+    self.embedded_bun.as_ref().map(|bun| {
+      format!(
+        "{} --no-env-file just{}",
+        command_ext::shell_quote(bun.as_str()),
+        if self.bun_shell { " --bun-shell" } else { "" }
+      )
+    })
+  }
+
   pub(crate) fn new() -> ConfigResult<Self> {
     Ok(Self {
       alias_style: AliasStyle::Right,
       allow_missing: false,
+      bun_shell: false,
       ceiling: None,
       check: false,
       color: Color::default(),
@@ -62,6 +82,7 @@ impl Config {
       dotenv_filename: Vec::new(),
       dotenv_path: Vec::new(),
       dry_run: false,
+      embedded_bun: None,
       explain: false,
       groups: Vec::new(),
       highlight: true,
@@ -312,6 +333,7 @@ impl Config {
     Ok(Self {
       alias_style: arguments.alias_style,
       allow_missing: arguments.allow_missing,
+      bun_shell: arguments.bun_shell,
       ceiling: arguments.ceiling,
       check: arguments.check,
       color: Color::new(arguments.indentation.unwrap_or_default(), arguments.color),
@@ -323,6 +345,7 @@ impl Config {
       dotenv_filename: arguments.dotenv_filename,
       dotenv_path: arguments.dotenv_path,
       dry_run: arguments.dry_run,
+      embedded_bun: None,
       explain: arguments.explain,
       groups: arguments.group,
       highlight: !arguments.no_highlight,

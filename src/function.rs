@@ -98,6 +98,7 @@ pub(crate) fn get(name: &str) -> Option<Function> {
     "is_dependency" => ValueNullary(is_dependency),
     "join" => BinaryPlus(join),
     "join_list" => BinaryOptValueStrToValue(join_list),
+    "just_command" => Nullary(just_command),
     "just_executable" => Nullary(just_executable),
     "just_pid" => Nullary(just_pid),
     "just_version" => Nullary(just_version),
@@ -426,7 +427,19 @@ fn join_list(_context: Context, value: &Value, separator: Option<&str>) -> Value
   Ok(value.elements().join(separator.unwrap_or(" ")).into())
 }
 
-fn just_executable(_context: Context) -> StringResult {
+fn just_command(context: Context) -> StringResult {
+  context
+    .execution_context
+    .config
+    .embedded_just_command()
+    .map(Ok)
+    .unwrap_or_else(|| just_executable(context).map(|path| command_ext::shell_quote(&path)))
+}
+
+fn just_executable(context: Context) -> StringResult {
+  if let Some(executable) = &context.execution_context.config.embedded_bun {
+    return Ok(executable.to_string());
+  }
   let exe_path =
     env::current_exe().map_err(|e| format!("could not get current `just` executable: {e}"))?;
 
@@ -547,7 +560,7 @@ fn path_exists(context: Context, path: &str) -> ValueResult {
 }
 
 fn quote(_context: Context, s: &str) -> StringResult {
-  Ok(format!("'{}'", s.replace('\'', "'\\''")))
+  Ok(command_ext::shell_quote(s))
 }
 
 fn read(context: Context, filename: &str) -> StringResult {

@@ -15,7 +15,7 @@ impl Executor<'_> {
     recipe: &'src str,
     working_directory: Option<&Utf8Path>,
   ) -> RunResult<'src, Command> {
-    match self {
+    let mut command = match self {
       Self::Command(interpreter) => {
         let mut command = Command::resolve(&interpreter.command);
 
@@ -29,7 +29,7 @@ impl Executor<'_> {
 
         command.arg(path);
 
-        Ok(command)
+        command
       }
       Self::Shebang(shebang) => {
         // make script executable
@@ -44,9 +44,13 @@ impl Executor<'_> {
             recipe,
             output_error,
           },
-        )
+        )?
       }
-    }
+    };
+
+    config.configure_child(&mut command);
+
+    Ok(command)
   }
 
   fn shell_kind(&self) -> ShellKind {

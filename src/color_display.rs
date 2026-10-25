@@ -1,7 +1,7 @@
 use super::*;
 
 pub(crate) trait ColorDisplay {
-  fn color_display(&self, color: Color) -> Wrapper
+  fn color_display(&self, color: Color) -> Wrapper<'_>
   where
     Self: Sized,
   {

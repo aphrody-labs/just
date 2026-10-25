@@ -262,7 +262,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     Ok(self.scope.value(assignment.number).unwrap())
   }
 
-  fn function_context(&self, name: Name<'src>) -> RunResult<'src, function::Context> {
+  fn function_context(&self, name: Name<'src>) -> RunResult<'src, function::Context<'_, '_>> {
     Ok(function::Context {
       env: &self.env,
       execution_context: self.context(ConstError::FunctionCall(name))?,

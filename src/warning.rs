@@ -5,7 +5,7 @@ pub(crate) enum Warning {}
 
 impl Warning {
   #[allow(clippy::unused_self)]
-  fn context(&self) -> Option<&Token> {
+  fn context(&self) -> Option<&Token<'_>> {
     None
   }
 }

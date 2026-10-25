@@ -84,6 +84,6 @@ fn justfile_init_search_stops_at_ceiling_dir() {
 
   assert_eq!(
     fs::read_to_string(tempdir.path().join("foo/bar/justfile")).unwrap(),
-    just::INIT_JUSTFILE
+    bun_just::INIT_JUSTFILE
   );
 }

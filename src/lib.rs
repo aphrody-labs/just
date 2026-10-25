@@ -193,7 +193,7 @@ pub(crate) use {
   std::borrow::Cow,
 };
 
-pub use crate::run::run;
+pub use crate::run::{run, run_from};
 
 #[doc(hidden)]
 pub use {arguments::Arguments, request::Response, subcommand::INIT_JUSTFILE, unindent::unindent};

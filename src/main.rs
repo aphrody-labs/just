@@ -1,7 +1,7 @@
 use {
+  bun_just::Arguments,
   clap::CommandFactory,
   clap_complete::CompleteEnv,
-  just::Arguments,
   std::{env, process},
 };
 
@@ -20,7 +20,7 @@ fn main() {
     .var("JUST_COMPLETE")
     .complete();
 
-  if let Err(code) = just::run(env::args_os()) {
+  if let Err(code) = bun_just::run(env::args_os()) {
     process::exit(code);
   }
 }

@@ -191,7 +191,7 @@ fn status_error() {
   .unwrap();
   fs::write(tmp.path().join("exit-2"), "#!/usr/bin/env bash\nexit 2\n").unwrap();
 
-  let output = Command::new("chmod")
+  let output = bun_no_window::command("chmod")
     .arg("+x")
     .arg(tmp.path().join("exit-2"))
     .output()
@@ -204,7 +204,7 @@ fn status_error() {
   )
   .unwrap();
 
-  let output = Command::new(JUST)
+  let output = just_command()
     .current_dir(tmp.path())
     .arg("--choose")
     .arg("--chooser")
@@ -240,7 +240,7 @@ fn cancelled_by_user() {
   )
   .unwrap();
 
-  let output = Command::new("chmod")
+  let output = bun_no_window::command("chmod")
     .arg("+x")
     .arg(tmp.path().join("chooser"))
     .output()
@@ -248,7 +248,7 @@ fn cancelled_by_user() {
 
   assert!(output.status.success());
 
-  let output = Command::new(JUST)
+  let output = just_command()
     .current_dir(tmp.path())
     .arg("--choose")
     .arg("--chooser")
@@ -323,7 +323,7 @@ fn default() {
   )
   .unwrap();
 
-  let output = Command::new(JUST)
+  let output = just_command()
     .arg("--choose")
     .arg("--chooser=fzf")
     .current_dir(tmp.path())
@@ -395,14 +395,14 @@ fn default_chooser_preview_finds_justfile() {
   let path = env::join_paths(
     [
       tmp.path().to_owned(),
-      Path::new(JUST).parent().unwrap().to_owned(),
+      just_binary().parent().unwrap().to_owned(),
     ]
     .into_iter()
     .chain(env::split_paths(&env::var_os("PATH").unwrap())),
   )
   .unwrap();
 
-  let output = Command::new(JUST)
+  let output = just_command()
     .arg("--choose")
     .arg("--justfile=foo.just")
     .current_dir(tmp.path())

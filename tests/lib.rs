@@ -1,6 +1,6 @@
 use {
   crate::{output::Output, tempdir::tempdir, test::Test},
-  just::{Response, unindent},
+  bun_just::{Response, unindent},
   pretty_assertions::Comparison,
   regex::Regex,
   serde::{Deserialize, Serialize},
@@ -14,7 +14,7 @@ use {
     io::{self, Write},
     iter,
     path::{MAIN_SEPARATOR, MAIN_SEPARATOR_STR, Path, PathBuf},
-    process::{Command, Stdio},
+    process::Stdio,
     str, thread,
     time::{Duration, Instant},
   },
@@ -25,6 +25,31 @@ use {
 const FALSE: &str = "[]";
 const JUST: &str = env!("CARGO_BIN_EXE_just");
 const TRUE: &str = "\"true\"";
+
+fn just_binary() -> PathBuf {
+  env::var_os("BUN_JUST_TEST_BINARY").map_or_else(|| JUST.into(), PathBuf::from)
+}
+
+fn just_command() -> std::process::Command {
+  let binary = just_binary();
+  let mut command = bun_no_window::command(&binary);
+
+  if env::var_os("BUN_JUST_TEST_BINARY").is_some() {
+    assert!(
+      binary.is_absolute(),
+      "BUN_JUST_TEST_BINARY must be an absolute path to the Bun executable"
+    );
+    command
+      .args(["--no-env-file", "just"])
+      .env("npm_lifecycle_event", "just");
+
+    if env::var_os("BUN_JUST_TEST_SHELL").is_some_and(|shell| shell == "bun") {
+      command.arg("--bun-shell");
+    }
+  }
+
+  command
+}
 
 #[track_caller]
 fn assert_dump(justfile: &str, dump: &str) {
